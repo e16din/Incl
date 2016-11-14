@@ -1,0 +1,37 @@
+<idea-plugin version="2">
+    <id>com.e16din.incl</id>
+    <name>Incl</name>
+    <version>1.0</version>
+    <vendor email="bigusov@gmail.com" url="https://github.com/e16din">e16din</vendor>
+
+    <description><![CDATA[
+      Incl - plugin for including android libraries and plugins by one action.
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="141.0"/>
+
+    <depends>com.intellij.modules.all</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Include library from _GitHub (Incl)" secondary="true" anchor="right"
+                    factoryClass="windows.InclSearchLibraryWindowFactory"/>
+    </extensions>
+
+    <actions>
+        <action id="Include.java8compat" class="InclJava8Compat" text="Include _Java 8 compatibility (Incl)"
+                description="Java 8 compatibility"/>
+        <action id="Include.apt" class="InclApt" text="Include _apt (Incl)"
+                description="Include apt"/>
+        <action id="Include.jitpack" class="InclJitpack" text="Include _jitpack (Incl)"
+                description="Include jitpack repository"/>
+        <action id="Include.appcompat" class="InclAppcompat" text="Include _appcompat (Incl)"
+                description="Include appcompat"/>
+        <action id="Include.dagger2" class="InclDagger2" text="Include _Dagger2 (Incl)"
+                description="Include Dagger2"/>
+        <action id="Include.vkontakte" class="InclVkontakte" text="Include _Vkontakte (Incl)"
+                description="Include Vkontakte SDK"/>
+        <action id="Include.datamanager" class="InclDataManager" text="Include _DataManager (Incl)"
+                description="Include DataManager"/>
+    </actions>
+
+</idea-plugin>
