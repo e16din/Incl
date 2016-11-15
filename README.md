@@ -6,11 +6,14 @@
 1. Нажмите [SHIFT + CMD(CTRL) + A], откроется окно "Enter action or options name: "
 2. Начните набирать одну из команд Incl:
   * Include Dagger2 (Incl)
-  * Include Java 8 compatibility (Incl)
-  * Include Vkontakte (Incl)
+  * Include ButterKnife (Incl)
   * Include apt (Incl)
   * Include jitpack (Incl)
+  * Include Java 8 compatibility (Incl)
+  * Include Vkontakte (Incl)
+  * Include Fresco (Incl)
   * Include appcompat (Incl)
+  * Include BaseProject (Incl)
   * Include DataManager (Incl)
 3. Нажмите Enter для выбора команды
 

@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.e16din.incl</id>
     <name>Incl</name>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <vendor email="bigusov@gmail.com" url="https://github.com/e16din">e16din</vendor>
 
     <description><![CDATA[
@@ -23,14 +23,22 @@
                 description="Include apt"/>
         <action id="Include.jitpack" class="InclJitpack" text="Include _jitpack (Incl)"
                 description="Include jitpack repository"/>
+
         <action id="Include.appcompat" class="InclAppcompat" text="Include _appcompat (Incl)"
                 description="Include appcompat"/>
         <action id="Include.dagger2" class="InclDagger2" text="Include _Dagger2 (Incl)"
                 description="Include Dagger2"/>
+        <action id="Include.butterknife" class="InclButterKnife" text="Include _ButterKnife (Incl)"
+                description="Include ButterKnife"/>
         <action id="Include.vkontakte" class="InclVkontakte" text="Include _Vkontakte (Incl)"
                 description="Include Vkontakte SDK"/>
+        <action id="Include.fresco" class="InclFresco" text="Include _Fresco (Incl)"
+                description="Include Fresco"/>
+
         <action id="Include.datamanager" class="InclDataManager" text="Include _DataManager (Incl)"
                 description="Include DataManager"/>
+        <action id="Include.baseproject" class="InclBaseProject" text="Include _BaseProject (Incl)"
+                description="Include BaseProject"/>
     </actions>
 
 </idea-plugin>

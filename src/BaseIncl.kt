@@ -45,6 +45,7 @@ abstract class BaseIncl : AnAction() {
 
     val DEP_COMPILE = "compile"
     val DEP_APT = "apt"
+    val DEP_ANNOTATION_PROCESSOR = "annotationProcessor"
     val DEP_KAPT = "kapt"
 
     val GRADLE_BLOCK_DEPENDENCIES = "dependencies {"
@@ -380,7 +381,7 @@ abstract class BaseIncl : AnAction() {
         val doc = insertToGradleBlock(GRADLE_BLOCK_ANDROID, "\n$GRADLE_COMPILE_OPTIONS\n", "compileOptions")
 
         write({
-            doc.setText(doc.text.replace(" apt ", " annotationProcessor "))
+            doc.setText(doc.text.replace(" $DEP_APT ", " $DEP_ANNOTATION_PROCESSOR "))
         })
     }
 
