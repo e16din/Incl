@@ -47,9 +47,9 @@ abstract class BaseIncl : AnAction() {
     val DEP_APT = "apt"
     val DEP_KAPT = "kapt"
 
-    val GRADLE_BLOCK_DEPENDENCIES = "dependencies"
-    val GRADLE_BLOCK_DEFAULT_CONFIG = "defaultConfig"
-    val GRADLE_BLOCK_ANDROID = "android"
+    val GRADLE_BLOCK_DEPENDENCIES = "dependencies {"
+    val GRADLE_BLOCK_DEFAULT_CONFIG = "defaultConfig {"
+    val GRADLE_BLOCK_ANDROID = "android {"
 
     val RES_INTEGER = "integer"
     val RES_STRING = "string"
@@ -200,7 +200,7 @@ abstract class BaseIncl : AnAction() {
         when (gradleBlockType) {
             GRADLE_BLOCK_DEPENDENCIES -> {
                 if (gradleBlockType.inBlock("buildscript", doc)) {//then search next position
-                    position = position(BLOCK_GRADLE_PROPERTY, doc, gradleBlockType, position)
+                    position = position(BLOCK_GRADLE_PROPERTY, doc, gradleBlockType, position + 1)
                 }
 
                 incl = "\n    $dependencyAddType '$value'"
@@ -347,22 +347,14 @@ abstract class BaseIncl : AnAction() {
 
         lastIndexStart = doc.text.indexOf("{", lastIndexStart + 1)
 
-        var depth: Int = 0
-
         while (lastIndexStart < lastIndexEnd && lastIndexStart >= 0) {
-            depth += 1
             lastIndexStart = doc.text.indexOf("{", lastIndexStart + 1)
-        }
-
-        if (depth == 0) return lastIndexEnd
-
-        for (i in 0..depth + 1) {
             lastIndexEnd = doc.text.indexOf("}", lastIndexEnd + 1)
+            if (lastIndexStart > lastIndexEnd) return lastIndexEnd
         }
 
         return lastIndexEnd
     }
-
 
     fun String.inBlock(block: String, doc: Document): Boolean {
         val start = doc.text.indexOf(block)
@@ -384,7 +376,7 @@ abstract class BaseIncl : AnAction() {
     }
 
     protected fun includeJava8Compat() {
-        insertToGradleBlock(GRADLE_BLOCK_DEFAULT_CONFIG, "\n$GRADLE_JACK_OPTIONS\n", "jackOptions")
+        insertToGradleBlock(GRADLE_BLOCK_DEFAULT_CONFIG, "\n$GRADLE_JACK_OPTIONS", "jackOptions")
         val doc = insertToGradleBlock(GRADLE_BLOCK_ANDROID, "\n$GRADLE_COMPILE_OPTIONS\n", "compileOptions")
 
         write({
