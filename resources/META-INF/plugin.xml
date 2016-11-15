@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.e16din.incl</id>
     <name>Incl</name>
-    <version>1.0</version>
+    <version>0.1.1</version>
     <vendor email="bigusov@gmail.com" url="https://github.com/e16din">e16din</vendor>
 
     <description><![CDATA[
@@ -13,8 +13,7 @@
 
     <depends>com.intellij.modules.all</depends>
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Include library from _GitHub (Incl)" secondary="true" anchor="right"
-                    factoryClass="windows.InclSearchLibraryWindowFactory"/>
+        <toolWindow id="Incl" secondary="true" anchor="right" factoryClass="windows.InclSearchLibraryWindowFactory"/>
     </extensions>
 
     <actions>

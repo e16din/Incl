@@ -1,4 +1,4 @@
-class InclJava8Compat : BaseIncl("Include _java8compat") {
+class InclJava8Compat : BaseIncl() {
 
     override fun name() = "java 8 compatibility"
 

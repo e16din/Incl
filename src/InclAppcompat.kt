@@ -1,4 +1,4 @@
-open class InclAppcompat() : BaseIncl("Include _appcompat") {
+open class InclAppcompat : BaseIncl() {
 
     override fun name() = "appcompat"
 

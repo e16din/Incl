@@ -1,4 +1,4 @@
-class InclApt(text: String = "Include _apt") : BaseIncl(text) {
+class InclApt : BaseIncl() {
 
     override fun name() = "apt"
 

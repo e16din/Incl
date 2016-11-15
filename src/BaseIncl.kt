@@ -14,7 +14,7 @@ import BaseIncl.InsertionType.*
 import BaseIncl.ClassType.*
 import BaseIncl.BlockType.*
 
-abstract class BaseIncl(text: String?) : AnAction(text) {
+abstract class BaseIncl : AnAction() {
 
     enum class FileType {
         FILE_BUILD_GRADLE_PROJECT,
@@ -194,11 +194,15 @@ abstract class BaseIncl(text: String?) : AnAction(text) {
 
         if (contains(doc, contains)) return doc
 
-        val position = position(BLOCK_GRADLE_PROPERTY, doc, gradleBlockType)
+        var position = position(BLOCK_GRADLE_PROPERTY, doc, gradleBlockType)
         val incl: String
 
         when (gradleBlockType) {
             GRADLE_BLOCK_DEPENDENCIES -> {
+                if (gradleBlockType.inBlock("buildscript", doc)) {//then search next position
+                    position = position(BLOCK_GRADLE_PROPERTY, doc, gradleBlockType, position)
+                }
+
                 incl = "\n    $dependencyAddType '$value'"
             }
             else -> {
@@ -315,8 +319,10 @@ abstract class BaseIncl(text: String?) : AnAction(text) {
         return document.getLineEndOffset(lineNumber)
     }
 
-    protected fun position(block: BlockType, doc: Document, property: String = ""): Int {
-        when (block) {
+    protected fun position(blockType: BlockType, doc: Document,
+                           block: String = "",
+                           start: Int = 0): Int { // GRADLE_BLOCK_ (dependencies / android / defaultConfig)
+        when (blockType) {
             BLOCK_ON_CREATE -> return positionAfterText(doc, "super.onCreate();")
             BLOCK_IMPORT -> {
                 val importIndex = doc.text.lastIndexOf("import")
@@ -326,29 +332,43 @@ abstract class BaseIncl(text: String?) : AnAction(text) {
                     return positionLineEnd(doc, importIndex)
             }
             BLOCK_GRADLE_PROPERTY -> {
-
-                val indexOfProperty = doc.text.indexOf(property)
-
-                var dept: Int = 0
-                var lastIndexStart: Int = doc.text.indexOf("{", indexOfProperty)
-                var lastIndexEnd: Int = doc.text.indexOf("}", indexOfProperty)
-
-                lastIndexStart = doc.text.indexOf("{", lastIndexStart + 1)
-
-                while (lastIndexStart < lastIndexEnd && lastIndexStart >= 0) {
-                    dept += 1
-                    lastIndexStart = doc.text.indexOf("{", lastIndexStart + 1)
-                }
-
-                if (dept == 0) return lastIndexEnd
-
-                for (i in 0..dept + 1) {
-                    lastIndexEnd = doc.text.indexOf("}", lastIndexEnd + 1)
-                }
-
-                return lastIndexEnd
+                return endOfGradleBlock(block, doc, start)
             }
         }
+    }
+
+    fun endOfGradleBlock(block: String, doc: Document,
+                         start: Int = 0): Int {
+        val indexOfBlock = doc.text.indexOf(block, start)
+
+        var lastIndexStart: Int = doc.text.indexOf("{", indexOfBlock)
+
+        var lastIndexEnd: Int = doc.text.indexOf("}", indexOfBlock)
+
+        lastIndexStart = doc.text.indexOf("{", lastIndexStart + 1)
+
+        var depth: Int = 0
+
+        while (lastIndexStart < lastIndexEnd && lastIndexStart >= 0) {
+            depth += 1
+            lastIndexStart = doc.text.indexOf("{", lastIndexStart + 1)
+        }
+
+        if (depth == 0) return lastIndexEnd
+
+        for (i in 0..depth + 1) {
+            lastIndexEnd = doc.text.indexOf("}", lastIndexEnd + 1)
+        }
+
+        return lastIndexEnd
+    }
+
+
+    fun String.inBlock(block: String, doc: Document): Boolean {
+        val start = doc.text.indexOf(block)
+        val end = endOfGradleBlock(block, doc)
+
+        return doc.text.substring(start, end).indexOf(this) >= 0
     }
 
 // includes

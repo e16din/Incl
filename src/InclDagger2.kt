@@ -1,4 +1,4 @@
-class InclDagger2 : BaseIncl("Include _Dagger2") {
+class InclDagger2 : BaseIncl() {
 
     override fun name() = "Dagger2"
 

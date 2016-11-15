@@ -3,7 +3,7 @@ import BaseIncl.InsertionType.*
 import BaseIncl.ClassType.*
 import BaseIncl.BlockType.*
 
-class InclVkontakte : BaseIncl("Include _Vkontakte") {
+class InclVkontakte : BaseIncl() {
 
     override fun name() = "Vkontakte"
 

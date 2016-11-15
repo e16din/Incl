@@ -1,7 +1,7 @@
 import BaseIncl.ClassType.*
 import BaseIncl.BlockType.*
 
-open class InclDataManager : BaseIncl("Include _DataManager") {
+open class InclDataManager : BaseIncl() {
 
     override fun name() = "DataManager"
 

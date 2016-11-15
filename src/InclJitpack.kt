@@ -1,4 +1,4 @@
-open class InclJitpack(text: String = "Include _jitpack") : BaseIncl(text) {
+open class InclJitpack : BaseIncl() {
 
     override fun name() = "jitpack"
 

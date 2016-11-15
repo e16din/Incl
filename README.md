@@ -3,7 +3,7 @@
 
 ## Как пользоваться:
 
-1. Нажмите - [SHIFT + CMD(or CTRL) + A] для открытия окна "Enter action or options name: "
+1. Нажмите [SHIFT + CMD(CTRL) + A], откроется окно "Enter action or options name: "
 2. Начните набирать одну из команд Incl:
   * Include Dagger2 (Incl)
   * Include Java 8 compatibility (Incl)
@@ -14,13 +14,17 @@
   * Include DataManager (Incl)
 3. Нажмите Enter для выбора команды
 
-Действие "Include Vkontakte" например, добавляет все что необходимо для использования Vkontakte Android SDK одной командой.
+Действие "Include Vkontakte" например, добавит все, что необходимо для использования Vkontakte Android SDK, одной командой.
 
-Использовать Incl гораздо удобнее чем копировать кучу строк в разные места, для каждого проекта. 
+## Преимущества Incl:
 
-Incl гибче чем создание базового проекта с набором подключенных библиотек. 
+ * Использовать Incl гораздо удобнее чем копировать кучу строк в разные места, для каждого проекта. 
 
-Incl - это возможность быстро, просто и удобно подключать библиотеки и фреймворки к проекту.
+ * Incl гибче чем создание базового проекта с набором подключенных библиотек. 
+
+ * Incl проще чем библиотека-обертка с коллекцией подключаемых модулей. 
+
+<b>Incl - это возможность быстро и удобно подключать библиотеки и фреймворки к вашему проекту.</b>
 
 ## Как установить:
 
@@ -32,7 +36,34 @@ Incl - это возможность быстро, просто и удобно 
 
 ## Как расширять:
 
-//todo: Добавить документацию. Описать как добавлять собственные включения.
+1. В папке src/ создайте свой класс с префиксом "Incl" и унаследуйте его от BaseIncl.
+```kotlin
+class InclApt : BaseIncl() {
+
+    override fun name() = "example"
+
+    override fun include() {
+        includeJitpack()
+        includeApt()
+        
+        insertToGradleBlock(GRADLE_BLOCK_DEPENDENCIES, "com.example:library:1.2.3")
+        insertToClass(TYPE_APPLICATION, BLOCK_ON_CREATE, "\n        //your code here")
+    }
+}
+```
+
+2. Добавьте action в resources/META-INF/plugin.xml по аналогии с действием Include.vkontakte:
+```xml
+<actions>
+    <action id="Include.vkontakte" class="InclVkontakte" text="Include _Vkontakte (Incl)"
+                description="Include Vkontakte SDK"/>
+    ...
+    <action id="Include.example" class="InclExample" text="Include _example (Incl)"
+                description="Example description"/>
+</actions>
+```
+
+3. В меню Build, нажмите пункт "Prepare Plugin Module 'Incl' For Deployment", что-бы собрать плагин в установочный zip-архив.
 
 ## Как будет развиваться проект?
 
