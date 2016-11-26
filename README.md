@@ -15,6 +15,10 @@
   * Include appcompat (Incl)
   * Include BaseProject (Incl)
   * Include DataManager (Incl)
+  * Include Gson (Incl)
+  * Include DBFlow (Incl)
+  * Include JodaTime (Incl)
+  * Include kapt (Incl)
 3. Нажмите Enter для выбора команды
 
 Действие "Include Vkontakte" например, добавит все, что необходимо для использования Vkontakte Android SDK, одной командой.
@@ -39,10 +43,11 @@
 
 ## Как расширять:
 
-В папке src/ создайте свой класс с префиксом "Incl" и унаследуйте его от BaseIncl.
+В папке src/ создайте свой класс с префиксом "Incl" и унаследуйте его от com.e16din.incl.BaseIncl.
 Определите метод include() и воспользуйтесь функциями "insert" для вставки текста в файлы:
 ```kotlin
-class InclApt : BaseIncl() {
+
+class InclExample : BaseIncl() {
 
     override fun name() = "example"
 
@@ -59,7 +64,7 @@ class InclApt : BaseIncl() {
 Добавьте action в resources/META-INF/plugin.xml по аналогии с действием Include.vkontakte:
 ```xml
 <actions>
-    <action id="Include.vkontakte" class="InclVkontakte" text="Include _Vkontakte (Incl)"
+    <action id="Include.vkontakte" class="com.e16din.incl.InclVkontakte" text="Include _Vkontakte (Incl)"
                 description="Include Vkontakte SDK"/>
     ...
     <action id="Include.example" class="InclExample" text="Include _example (Incl)"

@@ -1,3 +1,5 @@
+package com.e16din.incl
+
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -9,10 +11,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VfsUtil
 import java.io.File
-import BaseIncl.FileType.*
-import BaseIncl.InsertionType.*
-import BaseIncl.ClassType.*
-import BaseIncl.BlockType.*
+import com.e16din.incl.BaseIncl.FileType.*
+import com.e16din.incl.BaseIncl.InsertionType.*
+import com.e16din.incl.BaseIncl.ClassType.*
+import com.e16din.incl.BaseIncl.BlockType.*
 
 abstract class BaseIncl : AnAction() {
 
@@ -21,7 +23,8 @@ abstract class BaseIncl : AnAction() {
         FILE_BUILD_GRADLE_APP,
         FILE_MANIFEST,
         FILE_RESOURCES,
-        FILE_APPLICATION
+        FILE_APPLICATION,
+        FILE_ANY
     }
 
     enum class InsertionType {
@@ -42,11 +45,6 @@ abstract class BaseIncl : AnAction() {
         BLOCK_IMPORT,
         BLOCK_GRADLE_PROPERTY
     }
-
-    val DEP_COMPILE = "compile"
-    val DEP_APT = "apt"
-    val DEP_ANNOTATION_PROCESSOR = "annotationProcessor"
-    val DEP_KAPT = "kapt"
 
     val GRADLE_BLOCK_DEPENDENCIES = "dependencies {"
     val GRADLE_BLOCK_DEFAULT_CONFIG = "defaultConfig {"
@@ -81,17 +79,18 @@ abstract class BaseIncl : AnAction() {
         Messages.showMessageDialog(project, name() + " included.", "Incl", Messages.getInformationIcon())
     }
 
-    protected fun write(runnable: () -> Unit, desc: String? = null) {
+    protected fun write(runnable: () -> Unit) {
         CommandProcessor.getInstance().executeCommand(project, {
             ApplicationManager.getApplication().runWriteAction(runnable)
-        }, desc, null)
+        }, null, null)
     }
 
     protected fun document(docType: FileType,
                            appPackage: String = "",
-                           fileName: String? = XML_STRINGS): Document {
+                           fileName: String? = XML_STRINGS,
+                           filePath: String = ""): Document {
 
-        val file: File
+        var file: File
         val projectPath = project!!.basePath
 
         when (docType) {
@@ -116,9 +115,16 @@ abstract class BaseIncl : AnAction() {
             }
 
             FILE_APPLICATION -> {
-                file = File("$projectPath/app/src/main/java/${packageToPath(appPackage)}/$fileName.java")
+                val path = "$projectPath/app/src/main/java/" +
+                        "${packageToPath(appPackage)}${packageToPath(fileName!!)}"
+                file = File(path.plus(".java"))
+                if (!file.exists()) {
+                    file = File(path.plus(".kt"))
+                }
             }
-
+            FILE_ANY -> {
+                file = File(filePath)
+            }
         }
 
         if (!file.exists()) {
@@ -143,9 +149,9 @@ abstract class BaseIncl : AnAction() {
 
         incl = resourceTag(resType, key, value)
 
-        write({
+        write {
             doc.insertString(position, incl)
-        })
+        }
     }
 
 
@@ -175,9 +181,9 @@ abstract class BaseIncl : AnAction() {
                 if (withLineSpaceBefore) incl = "\n$incl"
                 if (withLineSpaceAfter) incl = "$incl\n"
 
-                write({
+                write {
                     doc.insertString(position, incl)
-                })
+                }
             }
 
             TYPE_ACTIVITY -> {
@@ -187,9 +193,9 @@ abstract class BaseIncl : AnAction() {
     }
 
     protected fun insertToGradleBlock(gradleBlockType: String, value: String,
-                                      dependencyAddType: String = DEP_COMPILE,
                                       buildGradleFileType: FileType = FILE_BUILD_GRADLE_APP,
-                                      contains: String = value): Document {
+                                      contains: String = value,
+                                      commented: Boolean = false): Document {
 
         val doc = document(buildGradleFileType)
 
@@ -200,20 +206,21 @@ abstract class BaseIncl : AnAction() {
 
         when (gradleBlockType) {
             GRADLE_BLOCK_DEPENDENCIES -> {
-                if (gradleBlockType.inBlock("buildscript", doc)) {//then search next position
+                val buildscriptBlock = "buildscript"
+                if (doc.text.contains(buildscriptBlock) && gradleBlockType.inBlock(buildscriptBlock, doc)) {//then search next position
                     position = position(BLOCK_GRADLE_PROPERTY, doc, gradleBlockType, position + 1)
                 }
 
-                incl = "\n    $dependencyAddType '$value'"
+                incl = "\n    $value"
             }
             else -> {
                 incl = value
             }
         }
 
-        write({
-            doc.insertString(position, incl.plus("\n"))
-        })
+        write {
+            doc.insertString(position, commentIfNeed(commented, incl).plus("\n"))
+        }
 
         return doc
     }
@@ -233,7 +240,7 @@ abstract class BaseIncl : AnAction() {
                 if (contains(doc, value)) return
 
                 position = positionLineEnd(doc, doc.text.lastIndexOf("classpath "))
-                incl = "\n        classpath '$value'"
+                incl = "\n        ".plus(value)
             }
 
             TYPE_ALL_PROJECTS_REPOSITORY -> {
@@ -288,10 +295,31 @@ abstract class BaseIncl : AnAction() {
             }
         }
 
-        write({
+        write {
             doc.insertString(position, incl)
-        })
+        }
     }
+
+    fun insertAny(docType: FileType, position: Int, incl: String,
+                  filePath: String = "",
+                  commented: Boolean = false): Document {
+
+        val newIncl: String = commentIfNeed(commented, incl)
+
+        val doc = document(docType, filePath = filePath)
+        write {
+            doc.insertString(if (position < 0) doc.text.length else position, "\n".plus(newIncl))
+        }
+
+        return doc
+    }
+
+    private fun commentIfNeed(commented: Boolean, incl: String): String {
+        if (commented) return incl.lines().joinToString("\n//")
+
+        return incl
+    }
+
 
 //positions
 
@@ -367,22 +395,36 @@ abstract class BaseIncl : AnAction() {
 // includes
 
     protected fun includeApt() {
-        insert(TYPE_DEPENDENCIES_CLASSPATH, CLASSPATH_APT.plus(":1.8"))
-        insert(TYPE_APPLY_PLUGIN, PLUGIN_APT)
+        insert(TYPE_DEPENDENCIES_CLASSPATH, InclApt.CLASSPATH_APT)
+        insert(TYPE_APPLY_PLUGIN, InclApt.PLUGIN_APT)
+    }
+
+    protected fun includeKapt(commented: Boolean = false) {
+        val incl = """// if you're building with Kotlin
+kapt {
+    generateStubs = true
+}"""
+
+        val doc = insertAny(FILE_BUILD_GRADLE_APP, -1, incl, commented = commented)
+        write {
+            doc.setText(doc.text.replace(" apt ", " kapt "))
+        }
     }
 
 
     protected fun includeJitpack() {
-        insert(TYPE_ALL_PROJECTS_REPOSITORY, "\n        $REPOSITORY_JITPACK")
+        insert(TYPE_ALL_PROJECTS_REPOSITORY, "\n        ${REPOSITORY_JITPACK}")
     }
 
     protected fun includeJava8Compat() {
-        insertToGradleBlock(GRADLE_BLOCK_DEFAULT_CONFIG, "\n$GRADLE_JACK_OPTIONS", "jackOptions")
-        val doc = insertToGradleBlock(GRADLE_BLOCK_ANDROID, "\n$GRADLE_COMPILE_OPTIONS\n", "compileOptions")
+        insertToGradleBlock(GRADLE_BLOCK_DEFAULT_CONFIG, "\n${InclJava8Compat.GRADLE_JACK_OPTIONS}",
+                contains = "jackOptions")
+        val doc = insertToGradleBlock(GRADLE_BLOCK_ANDROID, "\n${InclJava8Compat.GRADLE_COMPILE_OPTIONS}\n",
+                contains = "compileOptions")
 
-        write({
-            doc.setText(doc.text.replace(" $DEP_APT ", " $DEP_ANNOTATION_PROCESSOR "))
-        })
+        write {
+            doc.setText(doc.text.replace(" apt ", " annotationProcessor "))
+        }
     }
 
 // other
@@ -400,8 +442,6 @@ abstract class BaseIncl : AnAction() {
         return text.substring(startIndex, endIndex)
     }
 
-    protected fun description(value: String, fileName: String) = "Add $value to $fileName"
-
     protected fun contains(document: Document, text: String) = document.text.contains(text)
 
     private fun applicationPackageAndName(): Pair<String, String?> {
@@ -415,7 +455,7 @@ abstract class BaseIncl : AnAction() {
         val indexOfParamName = doc.text.indexOf(paramName, indexOfApplicationTag)
         val appClassName: String? =
                 if (indexOfParamName > 0 && indexOfParamName < doc.text.indexOf(">", indexOfApplicationTag))
-                    getValueAfter(doc.text, paramName, indexOfApplicationTag).split(".").last()
+                    getValueAfter(doc.text, paramName, indexOfApplicationTag)
                 else null
 
         return Pair(appPackage, appClassName)

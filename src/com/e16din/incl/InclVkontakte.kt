@@ -1,9 +1,32 @@
+package com.e16din.incl
+
 import com.intellij.openapi.ui.Messages
-import BaseIncl.InsertionType.*
-import BaseIncl.ClassType.*
-import BaseIncl.BlockType.*
+import com.e16din.incl.BaseIncl.InsertionType.*
+import com.e16din.incl.BaseIncl.ClassType.*
+import com.e16din.incl.BaseIncl.BlockType.*
 
 class InclVkontakte : BaseIncl() {
+
+    companion object {
+        const val MANIFEST_ACTIVITY_VKONTAKTE_NAME = "com.vk.sdk.VKServiceActivity"
+        const val MANIFEST_ACTIVITY_VKONTAKTE = "        <activity\n" +
+                "            android:name=\"" + MANIFEST_ACTIVITY_VKONTAKTE_NAME + "\"\n" +
+                "            android:label=\"ServiceActivity\"\n" +
+                "            android:theme=\"@style/VK.Transparent\"/>\n"
+
+
+        const val APP_INIT_VKONTAKTE_IMPORT = "import com.vk.sdk.VKSdk;"
+        const val APP_INIT_VKONTAKTE = "VKSdk.initialize(this);"
+
+        const val APP_INIT_VKONTAKTE_FINGERPRINT_IMPORT = "import com.vk.sdk.util.VKUtil;"
+        const val APP_INIT_VKONTAKTE_FINGERPRINT = "VKUtil.getCertificateFingerprint(this, this.getPackageName());"
+
+
+        const val RES_ID_VKONTAKTE_NAME = "com_vk_sdk_AppId"
+
+        const val COMPILE_VKONTAKTE = "compile 'com.vk:androidsdk:1.6.7'"
+    }
+
 
     override fun name() = "Vkontakte"
 
@@ -15,7 +38,7 @@ class InclVkontakte : BaseIncl() {
     }
 
     private fun includeToDependencies() {
-        insertToGradleBlock(GRADLE_BLOCK_DEPENDENCIES, COMPILE_VKONTAKTE.plus(":1.6.7"))
+        insertToGradleBlock(GRADLE_BLOCK_DEPENDENCIES, COMPILE_VKONTAKTE)
     }
 
     private fun includeToManifest() {
