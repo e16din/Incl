@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.e16din.incl</id>
     <name>Incl</name>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
     <vendor email="bigusov@gmail.com" url="https://github.com/e16din">e16din</vendor>
 
     <description><![CDATA[
